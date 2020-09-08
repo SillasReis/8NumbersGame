@@ -6,7 +6,18 @@ class Game(Frame):
         super().__init__(*args, **kwargs)
         
         self.numbers = dict()
+        self.finish_state = {
+            1:(0,0),
+            2:(0,1),
+            3:(0,2),
+            4:(1,2),
+            5:(2,2),
+            6:(2,1),
+            7:(2,0),
+            8:(1,0)
+        }
         self.empty = None
+        self.plays = 0
 
         self.initUI()
         self.initNumbers()
@@ -65,6 +76,25 @@ class Game(Frame):
 
             number_button.grid(row=empty_position['row'], column=empty_position['column'])
             self.empty.grid(row=number_position['row'], column=number_position['column'])
+
+            self.plays += 1
+
+        # Verifica se o jogo acabou
+        if self.win_condition():
+            print(f'Parabéns! Jogo finalizado com {self.plays} jogada(s).')
+
+
+    # Retorna True se o jogo tiver alcançado a condição de vitória
+    def win_condition(self):
+        for i in range(1, 9):
+            grid_info = self.numbers[i].grid_info()
+            current_pos = grid_info['row'], grid_info['column']
+            
+            if current_pos != self.finish_state[i]:
+                return False
+        
+        return True
+
 
 
 root = Tk()
