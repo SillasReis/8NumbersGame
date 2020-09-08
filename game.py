@@ -1,5 +1,41 @@
 import tkinter as tk
 from tkinter import *
+import sys
+
+
+class FinishGameWindow(Toplevel):
+    def __init__(self, plays, transient):
+        super().__init__()
+
+        self.plays = plays
+
+        self.transient = transient
+        self.focus_force()
+        self.grab_set()
+
+        self.resizable(False, False)
+
+        self.initFinishWindow()
+    
+
+    def initFinishWindow(self):
+        self.title('Fim')
+        self.geometry('300x100')
+
+        Label(self, text=f'Parabéns!\nJogo finalizado com {self.plays} jogada(s).').pack(side=TOP, fill=BOTH, expand=True)
+        Button(self, text='Jogar novamente', command=self.playAgainButton).pack(side=LEFT, fill=BOTH, expand=True, padx=2, pady=5)
+        Button(self, text='Sair', command=self.exitButton).pack(side=LEFT, fill=BOTH, expand=True, padx=2, pady=5)
+    
+
+    def exitButton(self):
+        sys.exit(0)
+
+    
+    def playAgainButton(self):
+        self.transient.destroy()
+        Game()
+        self.destroy()
+        
 
 class Game(Frame):
     def __init__(self, *args, **kwargs):
@@ -81,7 +117,7 @@ class Game(Frame):
 
         # Verifica se o jogo acabou
         if self.win_condition():
-            print(f'Parabéns! Jogo finalizado com {self.plays} jogada(s).')
+            finish_window = FinishGameWindow(self.plays, self)
 
 
     # Retorna True se o jogo tiver alcançado a condição de vitória
@@ -94,6 +130,9 @@ class Game(Frame):
                 return False
         
         return True
+
+    
+
 
 
 
