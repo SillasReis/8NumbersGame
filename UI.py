@@ -3,6 +3,7 @@ from tkinter import *
 import sys
 
 from game import *
+from solver import Solver
 
 
 class FinishGameWindow(Toplevel):
@@ -43,10 +44,14 @@ class FinishGameWindow(Toplevel):
         
 
 class GameFrame(Frame):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, base_game=None,*args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.game = Game()
+        if type(base_game) is Game:
+            self.game = base_game
+        else:
+            self.game = Game()
+
         self.pixel = PhotoImage(width=1, height=1)
 
         self.initUI()
@@ -70,6 +75,9 @@ class GameFrame(Frame):
             self.createNumberButton(number, self.game.current_state[number])
         
         self.createEmptyFrame(self.game.empty)
+
+        self.solutionButton = Button(self, text='Solução', image=self.pixel, compound=LEFT, width=615, height=40, command=self.solutionClick)
+        self.solutionButton.grid(row=3, columnspan=3)
 
     
     #Criar botão móvel com número
@@ -101,6 +109,26 @@ class GameFrame(Frame):
         
         self.updateScreen()
 
+
+    # Próximo passo da solução
+    def nextStepClick(self):
+        # Tenta dar próximo passo, se getNextStep levantar exceção, significa que o jogo já acabou 
+        try:
+            self.game = self.solution.getNextStep()
+
+        except GameOverException:
+            FinishGameWindow(self.game.plays, self)
+
+        self.updateScreen()
+
+        self.solutionButton.configure(text=f'Próximo passo (faltam {self.solution.stepsLeft()})', command=self.nextStepClick)
+
+
+    # Solucionar jogo
+    def solutionClick(self):
+        # Acha um conjunto de passos para a solução e altera o botão para dar próximo passo
+        self.solution = Solver(self.game)
+        self.solutionButton.configure(text=f'Próximo passo (faltam {self.solution.stepsLeft()})', command=self.nextStepClick)
 
 
 root = Tk()
